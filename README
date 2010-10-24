@@ -1,9 +1,13 @@
-comendes que veig que son utils:
+llibreries:
+libvtk5-dev
 
+comandes git que he utilitzat:
 
 git status		(veure canvis sense comitejar)
 git add [fitxer]		(pq tmb es miri un fitxer nou)
 git commit -m 'he fet això'		(local, en vas fent uns quan aconsegueixis coses noves)
-git pull		(?¿)
+git pull origin master		(unir dues branques diferents)
 git push origin master		(per internet, vols pujar versio nova del programa)
 etc.
+
+http://www.dtic.upf.edu/~jagenjo/?p=288

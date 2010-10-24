@@ -5,7 +5,8 @@ TARGETS = $(POLI) $(CARA)
 OBJECTS = $(OBJPOLI) $(OBJCARA)
 
 #######
-VtkIncDir = /usr/include/vtk
+#VtkIncDir = /usr/include/vtk
+VtkIncDir = /usr/include/vtk-5.4
 VtkLibDir = -L/usr/lib/vtk-5.4
 VtkLibs = -lvtkImaging -lvtkGraphics -lvtkCommon -lvtkRendering -lvtkFiltering -lvtkIO -lvtkCommon
 
