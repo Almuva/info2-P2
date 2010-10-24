@@ -1,0 +1,9 @@
+comendes que veig que son utils:
+
+
+git status		(veure canvis sense comitejar)
+git add [fitxer]		(pq tmb es miri un fitxer nou)
+git commit -m 'he fet això'		(local, en vas fent uns quan aconsegueixis coses noves)
+git pull		(?¿)
+git push origin master		(per internet, vols pujar versio nova del programa)
+etc.
