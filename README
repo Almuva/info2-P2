@@ -1,6 +1,14 @@
 llibreries:
 libvtk5-dev
 
+GITHUB
+------
+para instalar github
+http://help.github.com/
+
+AYUDA
+http://gitref.org/
+------
 comandes git que he utilitzat:
 
 git status		(veure canvis sense comitejar)
