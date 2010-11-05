@@ -25,97 +25,97 @@
 
 int main( int argc, char *argv[] )
 {
-  
-  /* inicializacion objetos graficos */
-  vtkRenderer *renderer = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
-  renWin->AddRenderer(renderer);
-  
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-  iren->SetRenderWindow(renWin);
 
-  /* leemos de disco la sfcie. poligonal, la guardamos en cara_sfcie */
-  vtkPolyDataReader * cara=vtkPolyDataReader::New();
-  cara->SetFileName("../vtkdata/fran_cut2.vtk");
-  cara->Update();
-  vtkPolyData * cara_sfcie=cara->GetOutput();
-  cara_sfcie->Update();
-  cara_sfcie->BuildCells();
-  cara_sfcie->BuildLinks();
+	/* inicializacion objetos graficos */
+	vtkRenderer *renderer = vtkRenderer::New();
+	vtkRenderWindow *renWin = vtkRenderWindow::New();
+	renWin->AddRenderer(renderer);
+	
+	vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+	iren->SetRenderWindow(renWin);
 
-
-  /* ejemplo: son vecinos los nodos con Id=1 y Id=5 ? */
-  if(( cara_sfcie->IsEdge(1,5))!=0)
-    fprintf(stderr,"\n Los nodos 1 y 5 son vecinos \n");
-  else
-    fprintf(stderr,"\n Los nodos 1 y 5 no estan unidos \n");
-  
-  /* Total de puntos de la sfcie: */
-  vtkPoints * verts = cara_sfcie->GetPoints();
-  long N=verts->GetNumberOfPoints();
-  fprintf(stderr,"\n El total de puntos de la sfcie es: %d \n",N);
+	/* leemos de disco la sfcie. poligonal, la guardamos en cara_sfcie */
+	vtkPolyDataReader * cara=vtkPolyDataReader::New();
+	cara->SetFileName("../vtkdata/fran_cut2.vtk");
+	cara->Update();
+	vtkPolyData * cara_sfcie=cara->GetOutput();
+	cara_sfcie->Update();
+	cara_sfcie->BuildCells();
+	cara_sfcie->BuildLinks();
 
 
-  /* creo una lista de Id's, guardo en ella los Id's de las celdas
-     (triangulos) a los que pertenece el punto con Id=13 */
-  vtkIdList * cellIds=vtkIdList::New();
-  cara_sfcie->GetPointCells(13,cellIds);
-  int n_cids=cellIds->GetNumberOfIds(); //la lista tendra n_cids elementos
+	/* ejemplo: son vecinos los nodos con Id=1 y Id=5 ? */
+	if(( cara_sfcie->IsEdge(1,5))!=0)
+		fprintf(stderr,"\n Los nodos 1 y 5 son vecinos \n");
+	else
+		fprintf(stderr,"\n Los nodos 1 y 5 no estan unidos \n");
+	
+	/* Total de puntos de la sfcie: */
+	vtkPoints * verts = cara_sfcie->GetPoints();
+	long N=verts->GetNumberOfPoints();
+	fprintf(stderr,"\n El total de puntos de la sfcie es: %d \n",N);
 
 
-  /* creo una lista de Id's, guardo en ella los Id's de los nodos
-     que hay en la celda (triangulo) que esta al final de la lista 
-     anterior */
-  vtkIdList * pointIds=vtkIdList::New(); 
-  cara_sfcie->GetCellPoints(cellIds->GetId(n_cids-1),pointIds);
-  int n_pids=pointIds->GetNumberOfIds(); //la lista tendra n_pids elementos
-
-  /* es el ultimo punto de la lista pointIds usado por el primer triangulo
-     de la lista cell_Ids ? */
-  if(cara_sfcie->IsPointUsedByCell(pointIds->GetId(n_pids),cellIds->GetId(0))!=0)
-    fprintf(stderr,"\n El punto %d esta en el triangulo %d \n",pointIds->GetId(n_pids),cellIds->GetId(0));
-  else
-    fprintf(stderr,"\n El punto %d no esta en el triangulo %d \n \n",pointIds->GetId(n_pids),cellIds->GetId(0));
-    
-
-  /* en una lista, pongo el valor Id  en la posicion pos */
-  int pos=n_pids-1;
-  int Id=58;
-  pointIds->InsertId(pos,Id);
+	/* creo una lista de Id's, guardo en ella los Id's de las celdas
+		 (triangulos) a los que pertenece el punto con Id=13 */
+	vtkIdList * cellIds=vtkIdList::New();
+	cara_sfcie->GetPointCells(13,cellIds);
+	int n_cids=cellIds->GetNumberOfIds(); //la lista tendra n_cids elementos
 
 
+	/* creo una lista de Id's, guardo en ella los Id's de los nodos
+		 que hay en la celda (triangulo) que esta al final de la lista
+		 anterior */
+	vtkIdList * pointIds=vtkIdList::New();
+	cara_sfcie->GetCellPoints(cellIds->GetId(n_cids-1),pointIds);
+	int n_pids=pointIds->GetNumberOfIds(); //la lista tendra n_pids elementos
+
+	/* es el ultimo punto de la lista pointIds usado por el primer triangulo
+		 de la lista cell_Ids ? */
+	if(cara_sfcie->IsPointUsedByCell(pointIds->GetId(n_pids),cellIds->GetId(0))!=0)
+		fprintf(stderr,"\n El punto %d esta en el triangulo %d \n",pointIds->GetId(n_pids),cellIds->GetId(0));
+	else
+		fprintf(stderr,"\n El punto %d no esta en el triangulo %d \n \n",pointIds->GetId(n_pids),cellIds->GetId(0));
+		
+
+	/* en una lista, pongo el valor Id	en la posicion pos */
+	int pos=n_pids-1;
+	int Id=58;
+	pointIds->InsertId(pos,Id);
 
 
-  /* calculo de normales para shading */  
-  vtkPolyDataNormals *normals = vtkPolyDataNormals::New();
-  normals->SetInput(cara_sfcie);
-  normals->SetFeatureAngle(45);
-  normals->Update();
-  
-
-  /*mapper */   
-  vtkPolyDataMapper *cara_sfcieMapper = vtkPolyDataMapper::New();
-  //comentamos la siguiente linea para que no haya shading
-  //  cara_sfcieMapper->SetInput(normals->GetOutput());
-  cara_sfcieMapper->SetInput(cara_sfcie);
-  vtkActor *cara_sfcieActor = vtkActor::New();
-  cara_sfcieActor->SetMapper(cara_sfcieMapper);
 
 
-  renderer->AddActor(cara_sfcieActor);
-  renderer->SetBackground(0.0,0.25,0.25);
-  renWin->SetSize(300,300);
+	/* calculo de normales para shading */
+	vtkPolyDataNormals *normals = vtkPolyDataNormals::New();
+	normals->SetInput(cara_sfcie);
+	normals->SetFeatureAngle(45);
+	normals->Update();
+	
 
-  // interact with data
-  renWin->Render();
+	/*mapper */
+	vtkPolyDataMapper *cara_sfcieMapper = vtkPolyDataMapper::New();
+	//comentamos la siguiente linea para que no haya shading
+	//	cara_sfcieMapper->SetInput(normals->GetOutput());
+	cara_sfcieMapper->SetInput(cara_sfcie);
+	vtkActor *cara_sfcieActor = vtkActor::New();
+	cara_sfcieActor->SetMapper(cara_sfcieMapper);
 
-  iren->Start();
 
-  // Clean up
-  renderer->Delete();
-  renWin->Delete();
-  iren->Delete();
-  cara_sfcieMapper->Delete();
-  cara_sfcieActor->Delete();
+	renderer->AddActor(cara_sfcieActor);
+	renderer->SetBackground(0.0,0.25,0.25);
+	renWin->SetSize(300,300);
+
+	// interact with data
+	renWin->Render();
+
+	iren->Start();
+
+	// Clean up
+	renderer->Delete();
+	renWin->Delete();
+	iren->Delete();
+	cara_sfcieMapper->Delete();
+	cara_sfcieActor->Delete();
 }
 
