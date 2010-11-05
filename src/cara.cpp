@@ -3,6 +3,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkPolyData.h"
 #include "vtkPoints.h"
+#include "vtkPlane.h"//
 #include "vtkCellArray.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
@@ -22,10 +23,12 @@
 #include <vtkPointData.h>
 #include <vtkCellData.h>
 
+double distanceToAveragePlain(double* A,double* Pn,double* Po){
+	return vtkPlane::DistanceToPlane(A,Pn,Po);
+}
 
 int main( int argc, char *argv[] )
 {
-
 	/* inicializacion objetos graficos */
 	vtkRenderer *renderer = vtkRenderer::New();
 	vtkRenderWindow *renWin = vtkRenderWindow::New();
@@ -76,14 +79,11 @@ int main( int argc, char *argv[] )
 		fprintf(stderr,"\n El punto %d esta en el triangulo %d \n",pointIds->GetId(n_pids),cellIds->GetId(0));
 	else
 		fprintf(stderr,"\n El punto %d no esta en el triangulo %d \n \n",pointIds->GetId(n_pids),cellIds->GetId(0));
-		
 
 	/* en una lista, pongo el valor Id	en la posicion pos */
 	int pos=n_pids-1;
 	int Id=58;
 	pointIds->InsertId(pos,Id);
-
-
 
 
 	/* calculo de normales para shading */
@@ -117,5 +117,11 @@ int main( int argc, char *argv[] )
 	iren->Delete();
 	cara_sfcieMapper->Delete();
 	cara_sfcieActor->Delete();
+
+/*edu*/
+	static double A[]={1,1,1};
+	static double Pn[]={0,0,1};
+	static double Po[]={0,0,0};
+	fprintf(stderr,"Distancia: %f\n\n",distanceToAveragePlain(A,Pn,Po));
 }
 
