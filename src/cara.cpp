@@ -4,6 +4,7 @@
 #include "vtkPolyData.h"
 #include "vtkPoints.h"
 #include "vtkPlane.h"//
+#include "vtkMath.h"//
 #include "vtkCellArray.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
@@ -25,6 +26,20 @@
 
 double distanceToAveragePlain(double* A,double* Pn,double* Po){
 	return vtkPlane::DistanceToPlane(A,Pn,Po);
+}
+
+void normalFrom3Points(double* A,double* B,double* C,double* Pn){
+
+	double v1[3],v2[3];
+	for(int i=0;i<3;i++){v1[i]=B[i]-A[i];v2[i]=C[i]-A[i];}
+	vtkMath::Cross(v1,v2,Pn);
+
+	//normalitza
+	vtkMath::Normalize(Pn);
+}
+
+void averageNormal(){
+	/*Per implementar*/
 }
 
 int main( int argc, char *argv[] )
@@ -120,8 +135,17 @@ int main( int argc, char *argv[] )
 
 /*edu*/
 	static double A[]={1,1,1};
-	static double Pn[]={0,0,1};
-	static double Po[]={0,0,0};
-	fprintf(stderr,"Distancia: %f\n\n",distanceToAveragePlain(A,Pn,Po));
+	static double x1[]={1,2,0};
+	static double x2[]={7,1,0};
+	static double x3[]={4,5,0};
+	double Pn[3];
+	static double* Po=x1;
+
+	normalFrom3Points(x1,x2,x3,Pn);
+	averageNormal();
+	double d=distanceToAveragePlain(A,Pn,Po);
+
+	fprintf(stderr,"Normal: %f %f %f\n\n",Pn[0],Pn[1],Pn[2]);
+	fprintf(stderr,"Distancia: %f\n\n",d);
 }
 
