@@ -50,6 +50,11 @@ double distanceToLine(double A[3],double P1[3],double P2[3]){
 	return sqrt(vtkLine::DistanceToLine(A,P1,P2));//<-Per comparar no caldria fer sqrt.
 }
 
+double distanceToEdge(){//double A[3],double Pts[][3],int N){
+	double d=vtkMath::Inf();
+	return d;
+}
+
 int main( int argc, char *argv[] )
 {
 	/* inicializacion objetos graficos */
@@ -79,7 +84,7 @@ int main( int argc, char *argv[] )
 	/* Total de puntos de la sfcie: */
 	vtkPoints * verts = cara_sfcie->GetPoints();
 	long N=verts->GetNumberOfPoints();
-	fprintf(stderr,"\n El total de puntos de la sfcie es: %d \n",N);
+	fprintf(stderr,"\n El total de puntos de la sfcie es: %ld \n",N);
 
 
 	/* creo una lista de Id's, guardo en ella los Id's de las celdas
@@ -99,9 +104,9 @@ int main( int argc, char *argv[] )
 	/* es el ultimo punto de la lista pointIds usado por el primer triangulo
 		 de la lista cell_Ids ? */
 	if(cara_sfcie->IsPointUsedByCell(pointIds->GetId(n_pids),cellIds->GetId(0))!=0)
-		fprintf(stderr,"\n El punto %d esta en el triangulo %d \n",pointIds->GetId(n_pids),cellIds->GetId(0));
+		fprintf(stderr,"\n El punto %d esta en el triangulo %d \n",(int)pointIds->GetId(n_pids),(int)cellIds->GetId(0));
 	else
-		fprintf(stderr,"\n El punto %d no esta en el triangulo %d \n \n",pointIds->GetId(n_pids),cellIds->GetId(0));
+		fprintf(stderr,"\n El punto %d no esta en el triangulo %d \n \n",(int)pointIds->GetId(n_pids),(int)cellIds->GetId(0));
 
 	/* en una lista, pongo el valor Id	en la posicion pos */
 	int pos=n_pids-1;
@@ -160,9 +165,12 @@ int main( int argc, char *argv[] )
 	averageNormal(Pn,3,AN);
 	double dP=distanceToAveragePlain(A,AN,Po);
 	double dL=distanceToLine(A,x1,x2);
+	//double E[3][3]={x1,x2,x3};
+	double dE=distanceToEdge();
 
 	fprintf(stderr,"Normal: %f %f %f\n\n",AN[0],AN[1],AN[2]);
 	fprintf(stderr,"Distancia al plano: %f\n\n",dP);
 	fprintf(stderr,"Distancia a la linea: %f\n\n",dL);
+	fprintf(stderr,"Distancia al borde: %f\n\n",dE);
 }
 
