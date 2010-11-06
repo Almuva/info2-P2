@@ -5,6 +5,7 @@
 #include "vtkPoints.h"
 #include "vtkPlane.h"//
 #include "vtkMath.h"//
+#include "vtkLine.h"//
 #include "vtkCellArray.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
@@ -43,6 +44,10 @@ void averageNormal(const double Normals[][3],const int N,double AN[3]){
 	AN[0]=AN[1]=AN[2]=0;
 	for(int i=0;i<N;i++){AN[0]+=Normals[i][0];AN[1]+=Normals[i][1];AN[2]+=Normals[i][2];}
 	vtkMath::Normalize(AN);
+}
+
+double distanceToLine(double A[3],double P1[3],double P2[3]){
+	return sqrt(vtkLine::DistanceToLine(A,P1,P2));//<-Per comparar no caldria fer sqrt.
 }
 
 int main( int argc, char *argv[] )
@@ -137,7 +142,7 @@ int main( int argc, char *argv[] )
 	cara_sfcieActor->Delete();
 
 /*edu*/
-	static double A[]={1,1,9};
+	static double A[]={0,0,9};
 	static double x1[]={0,0,0};
 	static double x2[]={0,2,0};
 	static double x3[]={2,2,0};
@@ -148,15 +153,16 @@ int main( int argc, char *argv[] )
 	double Pn[3][3];
 	static double* Po=x1;
 
-	//(vertex,a,b)
 	normalFrom3Points(x1,A,x2,Pn[0]);
 	normalFrom3Points(x2,A,x3,Pn[1]);
 	normalFrom3Points(x3,A,x1,Pn[2]);
 
 	averageNormal(Pn,3,AN);
-	double d=distanceToAveragePlain(A,AN,Po);
+	double dP=distanceToAveragePlain(A,AN,Po);
+	double dL=distanceToLine(A,x1,x2);
 
 	fprintf(stderr,"Normal: %f %f %f\n\n",AN[0],AN[1],AN[2]);
-	fprintf(stderr,"Distancia: %f\n\n",d);
+	fprintf(stderr,"Distancia al plano: %f\n\n",dP);
+	fprintf(stderr,"Distancia a la linea: %f\n\n",dL);
 }
 
