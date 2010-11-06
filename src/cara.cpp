@@ -24,22 +24,25 @@
 #include <vtkPointData.h>
 #include <vtkCellData.h>
 
-double distanceToAveragePlain(double* A,double* Pn,double* Po){
+double distanceToAveragePlain(double A[3],double Pn[3],double Po[3]){
 	return vtkPlane::DistanceToPlane(A,Pn,Po);
 }
 
-void normalFrom3Points(double* A,double* B,double* C,double* Pn){
+void normalFrom3Points(const double A[3],const double B[3],const double C[3],double Pn[3]){
+	//Normal = (p2-p1)x(p3-p1) <- multiplicacio en creu
 
 	double v1[3],v2[3];
 	for(int i=0;i<3;i++){v1[i]=B[i]-A[i];v2[i]=C[i]-A[i];}
-	vtkMath::Cross(v1,v2,Pn);
-
+	vtkMath::Cross(v1,v2,Pn);// <- multiplicacio en creu
+	
 	//normalitza
 	vtkMath::Normalize(Pn);
 }
 
-void averageNormal(){
-	/*Per implementar*/
+void averageNormal(const double Normals[][3],const int N,double AN[3]){
+	AN[0]=AN[1]=AN[2]=0;
+	for(int i=0;i<N;i++){AN[0]+=Normals[i][0];AN[1]+=Normals[i][1];AN[2]+=Normals[i][2];}
+	vtkMath::Normalize(AN);
 }
 
 int main( int argc, char *argv[] )
@@ -134,18 +137,26 @@ int main( int argc, char *argv[] )
 	cara_sfcieActor->Delete();
 
 /*edu*/
-	static double A[]={1,1,1};
-	static double x1[]={1,2,0};
-	static double x2[]={7,1,0};
-	static double x3[]={4,5,0};
-	double Pn[3];
+	static double A[]={1,1,9};
+	static double x1[]={0,0,0};
+	static double x2[]={0,2,0};
+	static double x3[]={2,2,0};
+	static double x4[]={45,1,-0.1};
+	static double x5[]={60,9,-0.1};
+	static double x6[]={3,2,-0.1};
+	double AN[3];
+	double Pn[3][3];
 	static double* Po=x1;
 
-	normalFrom3Points(x1,x2,x3,Pn);
-	averageNormal();
-	double d=distanceToAveragePlain(A,Pn,Po);
+	//(vertex,a,b)
+	normalFrom3Points(x1,A,x2,Pn[0]);
+	normalFrom3Points(x2,A,x3,Pn[1]);
+	normalFrom3Points(x3,A,x1,Pn[2]);
 
-	fprintf(stderr,"Normal: %f %f %f\n\n",Pn[0],Pn[1],Pn[2]);
+	averageNormal(Pn,3,AN);
+	double d=distanceToAveragePlain(A,AN,Po);
+
+	fprintf(stderr,"Normal: %f %f %f\n\n",AN[0],AN[1],AN[2]);
 	fprintf(stderr,"Distancia: %f\n\n",d);
 }
 
