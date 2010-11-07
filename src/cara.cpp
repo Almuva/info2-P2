@@ -25,10 +25,6 @@
 #include <vtkPointData.h>
 #include <vtkCellData.h>
 
-/*double distanceToAveragePlane(double A[3],double PNormal[3],double PPoint[3]){
-	return vtkPlane::DistanceToPlane(A,Pn,Po);
-}*/
-
 void normalFrom3Points(const double L[3],const double R[3],const double A[3],double N[3]){
 	//Normal = (p2-p1)x(p3-p1) <- multiplicacion cruzada
 	//regla de la mano derecha -> izquierda x derecha = -; derecha x izquierda = +;
@@ -36,22 +32,25 @@ void normalFrom3Points(const double L[3],const double R[3],const double A[3],dou
 	double v1[3],v2[3];
 	for(int i=0;i<3;i++){v1[i]=R[i]-A[i];v2[i]=L[i]-A[i];}
 	vtkMath::Cross(v1,v2,N);// <- multiplicacio en creu, resultat a N
-	
-	//normalitza
-	//vtkMath::Normalize(N);
+	//vtkMath::Normalize(N);//no se normaliza porque no da buen resultado
 }
 
 void averageNormal(const double Normals[][3],const int num,double avgN[3]){
+	/*sumando todas las normales obtenemos un vector de igual direccion
+	al que tendria la base de la piramide*/
+
 	avgN[0]=avgN[1]=avgN[2]=0;//averageNormal=0
 	for(int i=0;i<num;i++){
 		avgN[0]+=Normals[i][0];avgN[1]+=Normals[i][1];avgN[2]+=Normals[i][2];
-		fprintf(stderr,"N[%f,%f,%f]\n",Normals[i][0],Normals[i][1],Normals[i][2]);
 	}
-	vtkMath::Normalize(avgN);
+	vtkMath::Normalize(avgN);//normaliza la suma de todas las normales
 }
 
 void averagePoint(const double Points[][3],const int num,double avgP[3]){
-	avgP[0]=avgP[1]=avgP[2]=0;
+	/*sumando todos los puntos i normalizando obtenemos un punto
+	por donde pasa el plano medio*/
+
+	avgP[0]=avgP[1]=avgP[2]=0;//averagePoint=0
 	for(int i=0;i<num;i++){
 		avgP[0]+=Points[i][0];avgP[1]+=Points[i][1];avgP[2]+=Points[i][2];
 	}
@@ -59,31 +58,33 @@ void averagePoint(const double Points[][3],const int num,double avgP[3]){
 }
 
 double distanceToAveragePlane(double A[3],double Points[][3],const unsigned int num){
+	/*calcula el plano medio (a partir de num puntos)
+	i mide la distancia de A hasta este*/
 
-	double Normals[num][3],avgNormal[3],avgPoint[3];
+	double Normals[num][3],avgNormal[3],avgPoint[3];//variables locales
 
+	//calcular la normal de cada cara del la piramide poco regular
 	for(unsigned int i=0;i<num-1;i++){
 		normalFrom3Points(Points[i],Points[i+1],A,Normals[i]);
 	}
-	normalFrom3Points(Points[num-1],Points[0],A,Normals[num-1]);//tancar cercle
+	normalFrom3Points(Points[num-1],Points[0],A,Normals[num-1]);//cerrar circulo
 
+	//se suman todas las anteriores normales i se normaliza
 	averageNormal(Normals,num,avgNormal);
-	//avgNormal[0]=0;avgNormal[1]=0;avgNormal[2]=1;
+	//sumando todos los puntos i se normaliza
 	averagePoint(Points,num,avgPoint);
-	//avgPoint[0]=0;avgPoint[1]=1;avgPoint[2]=0;
-	fprintf(stderr,"A[%f,%f,%f] N[%f,%f,%f] P[%f,%f,%f]\n\n",
-		A[0],A[1],A[2],avgNormal[0],avgNormal[1],avgNormal[2],avgPoint[0],avgPoint[1],avgPoint[2]);
+
+	//informacion para debugar, quitar
+	/*fprintf(stderr,"Punto A[%f,%f,%f]\nNormal[%f,%f,%f] Punto Medio[%f,%f,%f]\n\n",
+		A[0],A[1],A[2],avgNormal[0],avgNormal[1],avgNormal[2],
+		avgPoint[0],avgPoint[1],avgPoint[2]);*/
+
 	return vtkPlane::DistanceToPlane(A,avgNormal,avgPoint);
 }
 
 double distanceToLine(double A[3],double P1[3],double P2[3]){
 	return sqrt(vtkLine::DistanceToLine(A,P1,P2));
-	//Per comparar no caldria fer sqrt.
-}
-
-double distanceToEdge(){//double A[3],double Pts[][3],int N){
-	double d=vtkMath::Inf();
-	return d;
+	//Para comparar no hace falta hacer la raiz cuadrada.
 }
 
 int main( int argc, char *argv[] )
@@ -178,16 +179,16 @@ int main( int argc, char *argv[] )
 	cara_sfcieActor->Delete();
 
 /*edu*/
-	static double A[]={-99,5,99};//Punto a eliminar o no
-	//los otros puntos, la base
+	static double A[]={1,2,3};//Punto a eliminar o no
+	//los otros puntos, forman la base
 	static double x1[]={0,0,0};
-	static double x2[]={0,1,0};
-	static double x3[]={0,2,0};
-	static double x4[]={1,2,0};
-	static double x5[]={2,2,0};
-	static double x6[]={2,1,0};
-	static double x7[]={2,0,0};
-	static double x8[]={1,0,0};
+	static double x2[]={0,0,1};
+	static double x3[]={0,0,2};
+	static double x4[]={0,1,2};
+	static double x5[]={0,2,2};
+	static double x6[]={0,2,1};
+	static double x7[]={0,2,0};
+	static double x8[]={0,1,0};
 	const int num=8;
 	double AllPoints[num][3];
 	static double* Po=x1;
@@ -204,10 +205,7 @@ int main( int argc, char *argv[] )
 
 	double dP=distanceToAveragePlane(A,AllPoints,num);
 	double dL=distanceToLine(A,x1,x2);
-	double dE=distanceToEdge();
 
 	fprintf(stderr,"Distancia al plano: %f\n\n",dP);
 	fprintf(stderr,"Distancia a la linea: %f\n\n",dL);
-	fprintf(stderr,"Distancia al borde: %f\n\n",dE);
 }
-
