@@ -57,11 +57,10 @@ void averagePoint(const double Points[][3],const int num,double avgP[3]){
 	for(int i=0;i<3;i++){avgP[i]/=(double)num;}
 }
 
-double distanceToAveragePlane(double A[3],double Points[][3],const unsigned int num){
-	/*calcula el plano medio (a partir de num puntos)
-	i mide la distancia de A hasta este*/
-
-	double Normals[num][3],avgNormal[3],avgPoint[3];//variables locales
+void AveragePlane(double A[3],double Points[][3],const unsigned int num,
+	double avgN[3],double avgP[3]){
+	
+	double Normals[num][3];//variable local
 
 	//calcular la normal de cada cara del la piramide poco regular
 	for(unsigned int i=0;i<num-1;i++){
@@ -70,16 +69,23 @@ double distanceToAveragePlane(double A[3],double Points[][3],const unsigned int 
 	normalFrom3Points(Points[num-1],Points[0],A,Normals[num-1]);//cerrar circulo
 
 	//se suman todas las anteriores normales i se normaliza
-	averageNormal(Normals,num,avgNormal);
+	averageNormal(Normals,num,avgN);
 	//sumando todos los puntos i se normaliza
-	averagePoint(Points,num,avgPoint);
+	averagePoint(Points,num,avgP);
 
 	//informacion para debugar, quitar
 	/*fprintf(stderr,"Punto A[%f,%f,%f]\nNormal[%f,%f,%f] Punto Medio[%f,%f,%f]\n\n",
-		A[0],A[1],A[2],avgNormal[0],avgNormal[1],avgNormal[2],
-		avgPoint[0],avgPoint[1],avgPoint[2]);*/
+		A[0],A[1],A[2],avgN[0],avgN[1],avgN[2],avgP[0],avgP[1],avgP[2]);*/
+}
 
-	return vtkPlane::DistanceToPlane(A,avgNormal,avgPoint);
+double distanceToAveragePlane(double A[3],double Points[][3],const unsigned int num){
+	/*calcula el plano medio (a partir de [num] puntos)
+	i mide la distancia de A hasta este*/
+	double Normals[num][3],PlaneNormal[3],PlanePoint[3];//variables locales
+
+	AveragePlane(A,Points,num,PlaneNormal,PlanePoint);
+
+	return vtkPlane::DistanceToPlane(A,PlaneNormal,PlanePoint);
 }
 
 double distanceToLine(double A[3],double P1[3],double P2[3]){
